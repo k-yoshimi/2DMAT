@@ -74,6 +74,8 @@ def main():
         from .solver.leed import Solver
     elif solvername == "analytical":
         from .solver.analytical import Solver
+    elif solvername == "sigma":
+        from .solver.sigma import Solver
     else:
         print(f"ERROR: Unknown solver ({solvername})")
         exit(1)

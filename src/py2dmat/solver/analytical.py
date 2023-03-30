@@ -98,7 +98,6 @@ def linear_regression_test(xs: np.ndarray) -> float:
         n * xs[2] + np.sum((xs[0] * xdata + xs[1] - ydata) ** 2) / np.exp(xs[2])
     )
 
-
 class Solver(py2dmat.solver.function.Solver):
     """Function Solver with pre-defined benchmark functions"""
 

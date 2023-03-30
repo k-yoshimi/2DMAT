@@ -1,0 +1,62 @@
+import numpy as np
+
+import py2dmat
+import py2dmat.solver.function
+
+class Solver(py2dmat.solver.function.Solver):
+    """Function Solver with pre-defined benchmark functions"""
+
+    x: np.ndarray
+    fx: float
+
+    def __init__(self, info: py2dmat.Info) -> None:
+        """
+        Initialize the solver.
+
+        Parameters
+        ----------
+        info: Info
+        """
+        super().__init__(info)
+        self._name = "sigma"
+        #Get target data
+        info_s = info.solver
+        _path_to_target_data = info_s.get("path_to_reference", "30Kexperimentdata.csv")
+        data = np.genfromtxt(_path_to_target_data, delimiter=',', encoding="utf-8-sig")[1:,:3]
+        self.B_target = data[:,0]
+        self.sigma_experiment = data[:,1:]
+        self.sigma_experiment /= self.sigma_experiment[0][0]
+        self._func = self._sigma_diff
+        self.alpha = info.algorithm.param.get("alpha", 0.5)
+    def _sigma(self, B, xs):
+        """
+        xs : n_1, n_2, ..., n_N, mu_1, mu_2, ..., mu_N
+        sigma_xx (B) = \sum_{i=1}^N e n_i \mu_i / (1+\mu_i^2 B^2)
+                     = \sum_{i=1}^N s_i / (1+\mu_i^2 B^2)
+        sigma_xy (B) = \sum_{i=1}^N sign(n_i) e n_i \mu_i^2 B/ (1+\mu_i^2 B^2)
+                     = \sum_{i=1}^N sign(s_i) s_i \mu_i B/ (1+\mu_i^2 B^2)
+        Here, sign(s_i) = -1 if i <= N/2 (electron), 1 if i > N/2 (hole)
+        """
+
+        N = int(len(xs) / 2)
+        sigma_xx = 0.0
+        sigma_xy = 0.0
+        for idx in range(N):
+            s = xs[idx]
+            myu = xs[idx + N]
+            sigma_xx += s /(1 + myu ** 2 * B ** 2)
+            if idx < int(N/2):
+                sigma_xy += -s * myu * B / (1 + myu ** 2 * B ** 2)
+            else:
+                sigma_xy += s * myu * B / (1 + myu ** 2 * B ** 2)
+        return sigma_xx, sigma_xy
+
+    def _sigma_diff(self, xs: np.ndarray) -> float:
+        sigma_simulate = np.zeros_like(self.sigma_experiment)
+        for idx, B in enumerate(self.B_target):
+            sigma_simulate[idx] = np.array(self._sigma(B, xs))
+
+        delta_sigma_xx = np.sqrt(np.mean(((self.sigma_experiment[:,0] - sigma_simulate[:,0])/np.mean(self.sigma_experiment[:,0]))**2))
+        delta_sigma_xy = np.sqrt(np.mean(((self.sigma_experiment[:,1] - sigma_simulate[:,1])/np.mean(self.sigma_experiment[:,1]))**2))
+        alpha = self.alpha
+        return alpha*delta_sigma_xx + (1.0-alpha)*delta_sigma_xy
