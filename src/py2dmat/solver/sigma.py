@@ -27,7 +27,8 @@ class Solver(py2dmat.solver.function.Solver):
         self.sigma_experiment = data[:,1:]
         self.sigma_experiment /= self.sigma_experiment[0][0]
         self._func = self._sigma_diff
-        self.alpha = info.algorithm.param.get("alpha", 0.5)
+        print(info.algorithm)
+        self.alpha = info.algorithm["param"].get("alpha", 0.5)
     def _sigma(self, B, xs):
         """
         xs : n_1, n_2, ..., n_N, mu_1, mu_2, ..., mu_N
