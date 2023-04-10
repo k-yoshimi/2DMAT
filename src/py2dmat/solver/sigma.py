@@ -29,7 +29,7 @@ class Solver(py2dmat.solver.function.Solver):
         self._func = self._sigma_diff
         print(info.algorithm)
         self.alpha = info.algorithm["param"].get("alpha", 0.5)
-    def _sigma(self, B, xs):
+    def _sigma(self, B_target, xs):
         """
         xs : n_1, n_2, ..., n_N, mu_1, mu_2, ..., mu_N
         sigma_xx (B) = \sum_{i=1}^N e n_i \mu_i / (1+\mu_i^2 B^2)
@@ -38,26 +38,24 @@ class Solver(py2dmat.solver.function.Solver):
                      = \sum_{i=1}^N sign(s_i) s_i \mu_i B/ (1+\mu_i^2 B^2)
         Here, sign(s_i) = -1 if i <= N/2 (electron), 1 if i > N/2 (hole)
         """
-
         N = int(len(xs) / 2)
-        sigma_xx = 0.0
-        sigma_xy = 0.0
-        for idx in range(N):
-            s = xs[idx]
-            myu = xs[idx + N]
-            sigma_xx += s /(1 + myu ** 2 * B ** 2)
-            if idx < int(N/2):
-                sigma_xy += -s * myu * B / (1 + myu ** 2 * B ** 2)
-            else:
-                sigma_xy += s * myu * B / (1 + myu ** 2 * B ** 2)
+        xs = np.array(xs)
+        s = xs[:N]
+        myu = xs[N:]
+        B_target = B_target.reshape(-1, 1)
+
+        # sigma_xxの計算
+        sigma_xx = np.sum(s / (1 + myu ** 2 * B_target ** 2), axis=1)
+        # sigma_xyの計算
+        sigma_xy_1 = (-s[:int(N / 2)] * myu[:int(N / 2)] / (1 + myu[:int(N / 2)] ** 2 * B_target ** 2)
+                      + s[int(N / 2):] * myu[int(N / 2):] / (1 + myu[int(N / 2):] ** 2 * B_target ** 2)) * B_target
+        sigma_xy = np.sum(sigma_xy_1, axis=1)
         return sigma_xx, sigma_xy
 
     def _sigma_diff(self, xs: np.ndarray) -> float:
-        sigma_simulate = np.zeros_like(self.sigma_experiment)
-        for idx, B in enumerate(self.B_target):
-            sigma_simulate[idx] = np.array(self._sigma(B, xs))
+        sigma_xx, sigma_xy = self._sigma(self.B_target, xs)
 
-        delta_sigma_xx = np.sqrt(np.mean(((self.sigma_experiment[:,0] - sigma_simulate[:,0])/np.mean(self.sigma_experiment[:,0]))**2))
-        delta_sigma_xy = np.sqrt(np.mean(((self.sigma_experiment[:,1] - sigma_simulate[:,1])/np.mean(self.sigma_experiment[:,1]))**2))
+        delta_sigma_xx = np.sqrt(np.mean(((self.sigma_experiment[:,0] - sigma_xx)/np.mean(self.sigma_experiment[:,0]))**2))
+        delta_sigma_xy = np.sqrt(np.mean(((self.sigma_experiment[:,1] - sigma_xy)/np.mean(self.sigma_experiment[:,1]))**2))
         alpha = self.alpha
         return alpha*delta_sigma_xx + (1.0-alpha)*delta_sigma_xy
