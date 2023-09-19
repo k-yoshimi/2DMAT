@@ -13,7 +13,7 @@ num_list = [1, 1, 1, 1]
 
 [solver]
 name = "azurite"
-path_to_reference = "exp_J.csv"
+path_to_reference = "../exp_J.csv"
 path_to_dmrg_library = "dmrg.so"
 size = 4
 [runner]
