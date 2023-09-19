@@ -1,0 +1,21 @@
+[base]
+dimension = 4 #J1, J2, J3, Jm
+output_dir = "output"
+
+[algorithm]
+name = "mapper"
+seed = 12345
+
+[algorithm.param]
+max_list = [15.51, 2.127, 0.4468, 0.2978]
+min_list = [15.51, 2.127, 0.4468, 0.2978]
+num_list = [1, 1, 1, 1]
+
+[solver]
+name = "azurite"
+path_to_reference = "exp_J.csv"
+path_to_dmrg_library = "dmrg.so"
+size = 4
+[runner]
+[runner.log]
+interval = 100
