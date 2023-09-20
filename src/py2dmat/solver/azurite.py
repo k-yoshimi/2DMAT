@@ -75,6 +75,7 @@ class Solver(py2dmat.solver.function.Solver):
         J_all = xs
         abs_J1 = np.abs(J_all[0])  # unit = meV
         conv_const = self.gval * self.muB / abs_J1  # Tesla ->  meV
+        J_normalized = J_all/abs_J1
         read_H = self.B_target
         read_mag = self.m_experiment
         results = {}
@@ -100,7 +101,7 @@ class Solver(py2dmat.solver.function.Solver):
                 int_seq = 1
                 int_read = 0
                 int_write = 1
-            results[calc_type] = self._calc_dmrg(J_all, self.size, calc_type, conv_const, self.B_target, ini_cnt, fin_cnt, d_cnt, int_seq, int_read, int_write)
+            results[calc_type] = self._calc_dmrg(J_normalized, self.size, calc_type, conv_const, self.B_target, ini_cnt, fin_cnt, d_cnt, int_seq, int_read, int_write)
 
         # [s] find the GS
         rand_result = results["rand"]
