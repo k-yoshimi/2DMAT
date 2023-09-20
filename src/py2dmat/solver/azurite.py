@@ -39,7 +39,7 @@ class Solver(py2dmat.solver.function.Solver):
         _path_to_dmrg_library = info_s.get("path_to_dmrg_library", "./dmrg.so")
         self.dmrg_lib = ctypes.CDLL(_path_to_dmrg_library)
 
-    def _calc_dmrg(self, J_all,size,calc_type,conv_const,read_H,read_mag, ini_cnt, fin_cnt, d_cnt, int_seq, int_read, int_write):
+    def _calc_dmrg(self, J_all,size,calc_type,conv_const,read_H, ini_cnt, fin_cnt, d_cnt, int_seq, int_read, int_write):
         # [s] for dmrg calc by ITensor
         dmrg_lib = self.dmrg_lib
         dmrg_lib.compute_energy.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64), ctypes.c_int, \
@@ -49,7 +49,8 @@ class Solver(py2dmat.solver.function.Solver):
         dmrg_lib.compute_energy.restype = ctypes.c_double
         mag_H = np.array([0.0, 0.0, 0.0], dtype=np.float64)  # Hx,Hy,Hz
         result = np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float64)  # ene,mx,my,mz
-
+        all_result = np.zeros((len(read_H), 2), dtype=np.float64)
+        read_mag = self.m_experiment
         out_file = "%s_size%d.dat" % (calc_type, size)
         with open(out_file, "w") as f:
             print("# Hz ene m_x m_y m_z read_mag")
@@ -72,9 +73,10 @@ class Solver(py2dmat.solver.function.Solver):
     def _calc_GS(self, xs: np.ndarray):
         cnt_num = len(self.B_target)
         J_all = xs
-        self.abs_J1 = np.abs(J_all[0]) * 0.0862  # unit = meV
-        self.conv_const = gval * muB / abs_J1  # Tesla ->  meV
-
+        abs_J1 = np.abs(J_all[0]) * 0.0862  # unit = meV
+        conv_const = self.gval * self.muB / abs_J1  # Tesla ->  meV
+        read_H = self.B_target
+        read_mag = self.m_experiment
         results = {}
         for calc_type in ["rand", "seq", "invseq"]:
             if calc_type == "rand":
@@ -98,7 +100,7 @@ class Solver(py2dmat.solver.function.Solver):
                 int_seq = 1
                 int_read = 0
                 int_write = 1
-            results[type] = self._calc_dmrg(J_all, self.size, type, conv_const, self.B_target, self.m_experiment, ini_cnt, fin_cnt, d_cnt, int_seq, int_read, int_write)
+            results[calc_type] = self._calc_dmrg(J_all, self.size, calc_type, conv_const, self.B_target, ini_cnt, fin_cnt, d_cnt, int_seq, int_read, int_write)
 
         # [s] find the GS
         rand_result = results["rand"]
@@ -124,12 +126,16 @@ class Solver(py2dmat.solver.function.Solver):
                     GS_result[cnt][0] = invseq_result[cnt][0]
                     GS_result[cnt][1] = invseq_result[cnt][1]
                     GS_result[cnt][2] = 2
-        with open("final_result_%d.dat" % (size), "w") as f:
+        with open("final_result_%d.dat" % (self.size), "w") as f:
             for cnt in range(len(read_H)):
-                print(" %f %f %f %f %f " % (read_H[cnt], GS_result[cnt][0], GS_result[cnt][1] * gval, GS_result[cnt][2], read_mag[cnt]), file=f)
+                print(" %f %f %f %f %f " % (read_H[cnt], GS_result[cnt][0], GS_result[cnt][1] * self.gval, GS_result[cnt][2], read_mag[cnt]), file=f)
+        return GS_result
         # [e] find the GS
 
     def _exp_diff(self, xs: np.ndarray) -> float:
         GS_result = self._calc_GS(xs)
+        #print("Debug")
+        #print(GS_result)
+        #print(self.m_experiment[:, 0])
         delta = np.sqrt(np.mean((self.m_experiment[:,0]-GS_result[:,1])**2))
         return delta
