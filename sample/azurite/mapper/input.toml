@@ -7,15 +7,15 @@ name = "mapper"
 seed = 12345
 
 [algorithm.param]
-max_list = [15.51, 2.127, 0.4468, 0.2978]
-min_list = [15.51, 2.127, 0.4468, 0.2978]
+max_list = [1.336962  , 2.84371817, 0.59735462, 0.39814728] #meV
+min_list = [1.336962  , 2.84371817, 0.59735462, 0.39814728] #meV
 num_list = [1, 1, 1, 1]
 
 [solver]
 name = "azurite"
 path_to_reference = "../exp_J.csv"
-path_to_dmrg_library = "dmrg.so"
-size = 4
+path_to_dmrg_library = "/home/k-yoshimi/git/azurite/itensor/dmrg/dmrg.so"
+size = 60
 [runner]
 [runner.log]
 interval = 100

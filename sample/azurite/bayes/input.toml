@@ -7,10 +7,10 @@ name = "bayes"
 seed = 12345
 
 [algorithm.param]
-max_list = [20.0, 10.0, 1.0, 1.0]
-min_list = [10.0, 0.0, 0.0, 0.0]
-num_list = [21, 21, 21, 21]
-# [15.51, 2.127, 0.4468, 0.2978]
+max_list = [5.0, 5.0, 1.0, 1.0]
+min_list = [0.0, 0.0, 0.0, 0.0]
+num_list = [51, 51, 21, 21]
+#[1.336962  , 2.84371817, 0.59735462, 0.39814728] #meV 
 
 [algorithm.bayes]
 random_max_num_probes = 10
