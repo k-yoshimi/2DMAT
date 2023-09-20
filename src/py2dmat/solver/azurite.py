@@ -73,7 +73,7 @@ class Solver(py2dmat.solver.function.Solver):
     def _calc_GS(self, xs: np.ndarray):
         cnt_num = len(self.B_target)
         J_all = xs
-        abs_J1 = np.abs(J_all[0]) * 0.0862  # unit = meV
+        abs_J1 = np.abs(J_all[0])  # unit = meV
         conv_const = self.gval * self.muB / abs_J1  # Tesla ->  meV
         read_H = self.B_target
         read_mag = self.m_experiment
