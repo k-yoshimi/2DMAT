@@ -33,7 +33,7 @@ class Solver(py2dmat.solver.function.Solver):
         self.gval = 2.06  # g value
         #read parameters from toml file
         self.size = info_s.get("size", 4)
-        self.sweep_dim = info_s.get("sweep_dim", [10])
+        self.sweep_dim = np.array(info_s.get("sweep_dim", [10]), dtype=np.int64)
         self.eps_cut = info_s.get("eps_cut", 1.0e-12)
         #TODO: set dmrg parameters
 
