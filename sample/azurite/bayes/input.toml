@@ -1,5 +1,5 @@
 [base]
-dimension = 4 #J1, J2, J3, Jm
+dimension = 6 #J1, J2, J3, Jm, D1, D3
 output_dir = "output"
 
 [algorithm]
@@ -7,9 +7,9 @@ name = "bayes"
 seed = 12345
 
 [algorithm.param]
-max_list = [5.0, 5.0, 1.0, 1.0]
-min_list = [0.0, 0.0, 0.0, 0.0]
-num_list = [51, 51, 21, 21]
+max_list = [5.0, 5.0, 1.0, 1.0, 1.0, 1.0]
+min_list = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+num_list = [51, 51, 21, 21, 21, 21]
 #[1.336962  , 2.84371817, 0.59735462, 0.39814728] #meV 
 
 [algorithm.bayes]
