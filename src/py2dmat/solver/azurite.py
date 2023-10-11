@@ -33,19 +33,23 @@ class Solver(py2dmat.solver.function.Solver):
         self.gval = 2.06  # g value
         #read parameters from toml file
         self.size = info_s.get("size", 4)
+        self.sweep_dim = info_s.get("sweep_dim", [10])
+        self.eps_cut = info_s.get("eps_cut", 1.0e-12)
         #TODO: set dmrg parameters
 
         #Load library
-        _path_to_dmrg_library = info_s.get("path_to_dmrg_library", "./dmrg.so")
+        _path_to_dmrg_library = info_s.get("path_to_dmrg_library", "dmrg.so")
         self.dmrg_lib = ctypes.CDLL(_path_to_dmrg_library)
 
     def _calc_dmrg(self, J_all,size,calc_type,conv_const,read_H, ini_cnt, fin_cnt, d_cnt, int_seq, int_read, int_write):
         # [s] for dmrg calc by ITensor
         dmrg_lib = self.dmrg_lib
-        dmrg_lib.compute_energy.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64), ctypes.c_int, \
-                                               np.ctypeslib.ndpointer(dtype=np.float64), \
-                                               np.ctypeslib.ndpointer(dtype=np.float64), \
-                                               ctypes.c_int, ctypes.c_int]
+        dmrg_lib.compute_energy.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64), ctypes.c_int,
+                                            np.ctypeslib.ndpointer(dtype=np.float64),
+                                            np.ctypeslib.ndpointer(dtype=np.float64),
+                                            ctypes.c_int, ctypes.c_int, ctypes.c_double,
+                                            np.ctypeslib.ndpointer(dtype=np.int64),
+                                            ctypes.c_int]
         dmrg_lib.compute_energy.restype = ctypes.c_double
         mag_H = np.array([0.0, 0.0, 0.0], dtype=np.float64)  # Hx,Hy,Hz
         result = np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float64)  # ene,mx,my,mz
@@ -61,7 +65,7 @@ class Solver(py2dmat.solver.function.Solver):
             print(calc_type, size, mag_H[2])
             if tmp_cnt > 0 and int_seq == 1:
                 int_read = 1
-            dmrg_lib.compute_energy(J_all, size, mag_H, result, int_read, int_write)
+            dmrg_lib.compute_energy(J_all, size, mag_H, result, int_read, int_write, self.eps_cut, self.sweep_dim, len(self.sweep_dim))
             all_result[cnt][0] = result[0]  # ene
             all_result[cnt][1] = result[3]  # mz
             with open(out_file, "a") as f:
