@@ -33,7 +33,7 @@ class Solver(py2dmat.solver.function.Solver):
         self.gval = 2.06  # g value
         #read parameters from toml file
         self.size = info_s.get("size", 4)
-        self.sweep_dim = np.array(info_s.get("sweep_dim", [10]), dtype=np.int64)
+        self.sweep_dim = np.array(info_s.get("sweep_dim", [10]), dtype=np.int32)
         self.eps_cut = info_s.get("eps_cut", 1.0e-12)
         #TODO: set dmrg parameters
 
@@ -48,7 +48,8 @@ class Solver(py2dmat.solver.function.Solver):
                                             np.ctypeslib.ndpointer(dtype=np.float64),
                                             np.ctypeslib.ndpointer(dtype=np.float64),
                                             ctypes.c_int, ctypes.c_int, ctypes.c_double,
-                                            np.ctypeslib.ndpointer(dtype=np.int64),
+                                            # np.ctypeslib.ndpointer(dtype=np.int64),
+                                            np.ctypeslib.ndpointer(dtype=np.int32),
                                             ctypes.c_int]
         dmrg_lib.compute_energy.restype = ctypes.c_double
         mag_H = np.array([0.0, 0.0, 0.0], dtype=np.float64)  # Hx,Hy,Hz
