@@ -7,10 +7,7 @@ name = "mapper"
 seed = 12345
 
 [algorithm.param]
-#J1,J2,J3,Jm,D1,D3
-max_list = [1.336962  , 2.84371817, 0.59735462, 0.39814728, 0.2673924, 0.1203266] #meV
-min_list = [1.336962  , 2.84371817, 0.59735462, 0.39814728, 0.2673924, 0.1203266] #meV
-num_list = [1, 1, 1, 1, 1, 1]
+mesh_path = "target_J.txt"
 
 [solver]
 name = "azurite"
