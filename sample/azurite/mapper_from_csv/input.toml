@@ -13,7 +13,7 @@ mesh_path = "target_J.txt"
 name = "azurite"
 path_to_reference = "../exp_J.csv"
 path_to_dmrg_library = "/home/k0136/k013603/git/azurite/itensor/dmrg/dmrg.so"
-size = 60
+size = 8
 eps_cut = 1e-12
 sweep_dim = [10, 40, 100, 200, 400]
 [runner]
