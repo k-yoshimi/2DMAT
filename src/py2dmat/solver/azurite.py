@@ -80,7 +80,8 @@ class Solver(py2dmat.solver.function.Solver):
         J_all = xs
         abs_J1 = np.abs(J_all[0])  # unit = meV
         conv_const = self.gval * self.muB / abs_J1  # Tesla ->  meV
-        J_normalized = J_all/abs_J1
+        J_normalized = xs.copy()
+        J_normalized[0] = 1.0
         read_H = self.B_target
         read_mag = self.m_experiment
         results = {}
