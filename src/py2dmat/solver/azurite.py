@@ -144,5 +144,5 @@ class Solver(py2dmat.solver.function.Solver):
         #print("Debug")
         #print(GS_result)
         #print(self.m_experiment[:, 0])
-        delta = np.sqrt(np.mean((self.m_experiment[:,0]-GS_result[:,1])**2))
+        delta = np.sqrt(np.mean((self.m_experiment[:,0]-GS_result[:,1] * self.gval)**2))
         return delta
